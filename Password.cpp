@@ -1,5 +1,6 @@
 #include "Password.h"
 #include <iostream>
+#include <string>
 #include <fstream>
 #include <random>
 #include <vector>
@@ -89,94 +90,75 @@ void Password::generateKey()
     }
 }
 
-void Password::createPassFile()
+void Password::createFiles()
 {
     // Check if a file exists, if not, create one.
-    std::fstream fs;
-    fs.open(passwordFile);
-    if (fs.fail()) {
-        std::cout << "File doesn't exits. Creating new file.\n";
-        std::ofstream outfile(passwordFile);
-        if (outfile.is_open()) {
-            std::cout << "File created successfully.\n";
-            outfile.close();
-        }
-        else {
-            std::cout << "Failed to create file.\n";
-            
+    std::ofstream outfilePass;
+    try {
+        outfilePass.open(passwordFile);
+        if (outfilePass.fail()) {
+            throw 102;
         }
     }
-    fs.close();
-    return;
+    catch (int errNo) {
+        outfilePass.clear();
+        std::cerr << "Error " << errNo << ": Failed to create file. Re-trying.\n";
+        createFiles();
+    }
+    outfilePass.write("Title\n", 6);
+    outfilePass.close();
 }
 
 
 // Do a simple encryption and output password into txt file.
 void Password::save()
 {
-    generateKey();
-
     // Encrypt password and name of service.
+    generateKey();
     std::string encryptedPass;
-    
     int lengthOfPassword = password.size();
-    for (int i = 0; i < lengthOfPassword; i++)
+    for (int i = 0; i < lengthOfPassword; i++) {
         encryptedPass.push_back(password[i] += key[i]);
-    
-    // Check for entries for the given service.
-    std::ifstream infile;
+    }
 
+    // Check for entries for the given service.
+    std::ifstream infilePass;
     //Check if "pass.txt" can be found. If not, create files.
+    label:
     try {
-        infile.open(passwordFile);
-        if (infile.fail())
+        infilePass.open(passwordFile);
+        if (infilePass.fail())
             throw 101;
     }
     catch (int errNo) {
-        infile.clear();
-        std::cerr << "Error " << errNo << ": File was not found or doesn't exist.\n";
-        createPassFile();
+        infilePass.clear();
+        std::cerr << "Error " << errNo << ": File(s) was not found or doesn't exist.\n";
+        createFiles();
+        goto label;
     }
 
-    // Find out if an entry for the given service already exists.
-    int lengthOfServiceName = nameOfService.size();
-    int lineNo = 0;
-    std::string Str;
-
-    while (std::getline(infile, Str)) {
-        unsigned int lengthOfStr = Str.size();
-        for (int i = 0; i < lengthOfStr; i++) {
-            if (Str[i] == nameOfService[0]) {
-                unsigned int hitCounter = 0;
-                for (int j = 0; j < lengthOfServiceName; j++) {
-                    if (Str[i + j] == nameOfService[j])
-                        hitCounter++;
-                }
-            }
+    // Code inside this is not being run!!!
+    // Search for entries for nameOfSerice.
+    std::string lineFromPassFile;
+    while (getline(infilePass, lineFromPassFile)) {
+        std::size_t found = lineFromPassFile.find(nameOfService);
+        if (found != std::string::npos) {
+            // Write password to existing entry.
+            // To be added.
+            break;
         }
-        lineNo++;
-    }
-    infile.close();
-
-    // If an entry for the service was fount, got to it's line.
-    // If not, write a new entry to the end of the file.
-
-
-    // Output encrypted password and name of service.
-    std::ofstream outfile(passwordFile, std::ios::app);
-    
-    if (outfile.is_open()) {
+        // Write password to new entry.
+        std::ofstream outfile(passwordFile, std::ios::app);
         outfile << "Service: " << nameOfService << std::endl;
         outfile << "Password: " << encryptedPass << std::endl << std::endl;
         outfile.close();
+        break;
     }
-    else {
-        createPassFile();
-        save();
-    }
+    infilePass.close();
 
     // Write the key into a text file.
-    std::ofstream keyfile("milkshake.txt", std::ios::app);
+    // Move this to encryptPass() when I make it.
+    std::ofstream keyfile(keyFile, std::ios::app);
 
     if (keyfile.is_open()) {
         std::string keyStr;
