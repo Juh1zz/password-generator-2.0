@@ -5,22 +5,17 @@
 class Password
 {
 public:
-    Password();
-    // Constructor that retrieves a passord from pass.txt.
-    //Password(const std::string& name);
-    ~Password();
+    //Password(const std::string service);
 
     std::string getName() const;
     std::string getPassword() const;
     int getLength() const;
-    
-    std::string getKey() const;
 
     // Generate a password.
-    void createPass(const int& length);
+    void create(const int& length);
     
     // Print name of service and the password for it.
-    void printPass() const;
+    void print() const;
 
     // Check if a password for the given service exists. It not, create an entry for it.
     // If it does exists, write the generated password to it.
@@ -39,10 +34,10 @@ private:
     void generateKey();
     
     // Encrypt the password.
-    // Perhaps move writing key into key file here.
+    // Move generating and writing key into key file here.
     //void encryptPass();
 
-    // Create a text file to store passwords in.
+    // Create text files to store passwords and keys.
     void createFiles();
 };
 
@@ -53,7 +48,6 @@ private:
         - Update output to output to given line if an entry for the service name exists.
         - Do the same for the key written in milkshake.txt.
         - Make encryption it's own method.
-    - Update createFiles to include key file.
     - Create constructor that finds a password for a service.
       |-> mygrep -project might come in handy. 
     - 

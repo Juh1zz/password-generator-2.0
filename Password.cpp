@@ -4,15 +4,12 @@
 #include <fstream>
 #include <random>
 #include <vector>
-
-Password::Password()
+/*
+Password::Password(const std::string service)
 {	
+    // Retrieve password from passwordFile.
 }
-
-Password::~Password()
-{
-}
-
+*/
 std::string Password::getName() const
 {
     return nameOfService;
@@ -28,19 +25,7 @@ int Password::getLength() const
     return password.size();
 }
 
-// Turn vector into string and return.
-std::string Password::getKey() const
-{
-    std::string stringKey;
-    int lengthOfKey = key.size();
-    for (int i = 0; i < lengthOfKey; i++)
-        stringKey.push_back(key[i]);
-
-    return stringKey;
-}
-
-
-void Password::createPass(const int& length)
+void Password::create(const int& length)
 {
     // Ask user what service the password is for.
     retryName:
@@ -70,12 +55,11 @@ void Password::createPass(const int& length)
     }
 }
 
-void Password::printPass() const
+void Password::print() const
 {
     std::cout << "Your password for " << nameOfService << " is: " << password << std::endl;
 }
 
-// Create encryption key.
 void Password::generateKey()
 {
     std::random_device rd;
@@ -94,23 +78,23 @@ void Password::createFiles()
 {
     // Check if a file exists, if not, create one.
     std::ofstream outfilePass;
+    std::ofstream outfileKey;
     try {
         outfilePass.open(passwordFile);
-        if (outfilePass.fail()) {
+        outfileKey.open(keyFile);
+        if (outfilePass.fail() || outfileKey.fail()) {
             throw 102;
         }
     }
     catch (int errNo) {
         outfilePass.clear();
-        std::cerr << "Error " << errNo << ": Failed to create file. Re-trying.\n";
+        std::cerr << "Error " << errNo << ": Failed to create file(s). Re-trying.\n";
         createFiles();
     }
-    outfilePass.write("Title\n", 6);
     outfilePass.close();
+    outfileKey.close();
 }
 
-
-// Do a simple encryption and output password into txt file.
 void Password::save()
 {
     // Encrypt password and name of service.
@@ -121,10 +105,9 @@ void Password::save()
         encryptedPass.push_back(password[i] += key[i]);
     }
 
-    // Check for entries for the given service.
-    std::ifstream infilePass;
     //Check if "pass.txt" can be found. If not, create files.
-    label:
+    std::ifstream infilePass;
+    again:
     try {
         infilePass.open(passwordFile);
         if (infilePass.fail())
@@ -134,13 +117,13 @@ void Password::save()
         infilePass.clear();
         std::cerr << "Error " << errNo << ": File(s) was not found or doesn't exist.\n";
         createFiles();
-        goto label;
+        goto again;
     }
 
-    // Code inside this is not being run!!!
     // Search for entries for nameOfSerice.
     std::string lineFromPassFile;
-    while (getline(infilePass, lineFromPassFile)) {
+    do {
+        std::cout << "Read line: " << lineFromPassFile << std::endl;
         std::size_t found = lineFromPassFile.find(nameOfService);
         if (found != std::string::npos) {
             // Write password to existing entry.
@@ -150,10 +133,11 @@ void Password::save()
         // Write password to new entry.
         std::ofstream outfile(passwordFile, std::ios::app);
         outfile << "Service: " << nameOfService << std::endl;
-        outfile << "Password: " << encryptedPass << std::endl << std::endl;
+        outfile << "Password: " << encryptedPass << std::endl;
         outfile.close();
         break;
-    }
+    } while (getline(infilePass, lineFromPassFile));
+
     infilePass.close();
 
     // Write the key into a text file.
