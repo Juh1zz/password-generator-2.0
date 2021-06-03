@@ -7,8 +7,8 @@ int main() {
 
     // Placeholder function for testing purposes.
     Password pass;
-    pass.createPass(10);
-    pass.printPass();
+    pass.create(10);
+    pass.print();
     pass.save();
 
     return 0;

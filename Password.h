@@ -22,7 +22,7 @@ public:
     void save();
     
 private:
-    std::string nameOfService;
+    std::string serviceName;
     std::string password;
     std::vector<int> key;
     std::string passwordFile = "pass.txt";
@@ -43,7 +43,7 @@ private:
 
 /*
     To do:
-    - Update save() -method to first check if an entry for a service already exists. -- In progress
+    - Update save() -method to first check if an entry for a service already exists.
         - Make the search case insensitive
         - Update output to output to given line if an entry for the service name exists.
         - Do the same for the key written in milkshake.txt.

@@ -12,7 +12,7 @@ Password::Password(const std::string service)
 */
 std::string Password::getName() const
 {
-    return nameOfService;
+    return serviceName;
 }
 
 std::string Password::getPassword() const
@@ -31,7 +31,7 @@ void Password::create(const int& length)
     retryName:
     try {
         std::cout << "Service name: ";
-        std::cin >> nameOfService;
+        std::cin >> serviceName;
         if (std::cin.fail())
             throw;
     }
@@ -57,7 +57,7 @@ void Password::create(const int& length)
 
 void Password::print() const
 {
-    std::cout << "Your password for " << nameOfService << " is: " << password << std::endl;
+    std::cout << "Your password for " << serviceName << " is: " << password << std::endl;
 }
 
 void Password::generateKey()
@@ -120,22 +120,33 @@ void Password::save()
         goto again;
     }
 
+    // Make name of service lower case.
+    std::string serviceLowerCase;
+    int sizeOfServiceName = serviceName.size();
+    for (int i = 0; i < sizeOfServiceName; i++) {
+        serviceLowerCase.push_back(tolower(serviceName[i]));
+    }
     // Search for entries for nameOfSerice.
     std::string lineFromPassFile;
     do {
-        std::cout << "Read line: " << lineFromPassFile << std::endl;
-        std::size_t found = lineFromPassFile.find(nameOfService);
+        // Convert lineFromPassFile to lower case to make search case insensitive.
+        int sizeOfLineFromPassFile = lineFromPassFile.size();
+        for (int i = 0; i < sizeOfLineFromPassFile; i++) {
+            lineFromPassFile[i] = tolower(lineFromPassFile[i]);
+        }
+        // Look for service name on a line from the pass file.
+        std::size_t found = lineFromPassFile.find(serviceLowerCase);
         if (found != std::string::npos) {
             // Write password to existing entry.
             // To be added.
+            std::cout << "Existing entry found.\n";
             break;
         }
         // Write password to new entry.
         std::ofstream outfile(passwordFile, std::ios::app);
-        outfile << "Service: " << nameOfService << std::endl;
+        outfile << "Service: " << serviceName << std::endl;
         outfile << "Password: " << encryptedPass << std::endl;
         outfile.close();
-        break;
     } while (getline(infilePass, lineFromPassFile));
 
     infilePass.close();
@@ -148,7 +159,7 @@ void Password::save()
         std::string keyStr;
         for (int i = 0; i < lengthOfPassword; i++) 
             keyStr.push_back(key[i]);
-        keyfile << "Service: " << nameOfService << std::endl;
+        keyfile << "Service: " << serviceName << std::endl;
         keyfile << "Key: " << keyStr << std::endl;
     }
     else {
