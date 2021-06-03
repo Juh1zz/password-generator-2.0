@@ -128,6 +128,7 @@ void Password::save()
     }
     // Search for entries for nameOfSerice.
     std::string lineFromPassFile;
+    int passFileLine = 0;
     do {
         // Convert lineFromPassFile to lower case to make search case insensitive.
         int sizeOfLineFromPassFile = lineFromPassFile.size();
@@ -138,8 +139,14 @@ void Password::save()
         std::size_t found = lineFromPassFile.find(serviceLowerCase);
         if (found != std::string::npos) {
             // Write password to existing entry.
-            // To be added.
-            std::cout << "Existing entry found.\n";
+            std::fstream filestream(passwordFile);
+            int iterator = 0;
+            std::string line;
+            while (getline(filestream, line)) {
+                if (iterator == passFileLine + 1) {
+                    filestream << "Service: " << password << std::endl;
+                }
+            }
             break;
         }
         // Write password to new entry.
@@ -147,6 +154,7 @@ void Password::save()
         outfile << "Service: " << serviceName << std::endl;
         outfile << "Password: " << encryptedPass << std::endl;
         outfile.close();
+        passFileLine++;
     } while (getline(infilePass, lineFromPassFile));
 
     infilePass.close();
