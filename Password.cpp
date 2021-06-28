@@ -107,7 +107,7 @@ void Password::save()
 
     //Check if "pass.txt" can be found. If not, create files.
     std::ifstream infilePass;
-    again:
+    tryAgain:
     try {
         infilePass.open(passwordFile);
         if (infilePass.fail())
@@ -117,7 +117,7 @@ void Password::save()
         infilePass.clear();
         std::cerr << "Error " << errNo << ": File(s) was not found or doesn't exist.\n";
         createFiles();
-        goto again;
+        goto tryAgain;
     }
 
     // Make name of service lower case.
@@ -128,44 +128,48 @@ void Password::save()
     }
     // Search for entries for nameOfSerice.
     std::string lineFromPassFile;
-    int passFileLine = 0;
-    do {
+    int passFileLine = 1;
+
+    while (getline(infilePass, lineFromPassFile)) {
         // Convert lineFromPassFile to lower case to make search case insensitive.
         int sizeOfLineFromPassFile = lineFromPassFile.size();
         for (int i = 0; i < sizeOfLineFromPassFile; i++) {
             lineFromPassFile[i] = tolower(lineFromPassFile[i]);
         }
-        // Look for service name on a line from the pass file.
-        std::size_t found = lineFromPassFile.find(serviceLowerCase);
+        std::string serviceFromLine = lineFromPassFile.substr(8, 9);
+        int found = lineFromPassFile.find(serviceLowerCase);
+        // If an entry for the service was found, write new password to it.
         if (found != std::string::npos) {
             // Write password to existing entry.
             std::fstream filestream(passwordFile);
-            int iterator = 0;
             std::string line;
+            int iterator = 1;
             while (getline(filestream, line)) {
-                if (iterator == passFileLine + 1) {
-                    filestream << "Service: " << password << std::endl;
+                if (iterator == passFileLine) {
+                    // Copy passfile to memory and change password entry for serviceName to new password.
                 }
+                iterator++;
             }
-            break;
+            filestream.close();
+            infilePass.close();
+            return;
         }
-        // Write password to new entry.
-        std::ofstream outfile(passwordFile, std::ios::app);
-        outfile << "Service: " << serviceName << std::endl;
-        outfile << "Password: " << encryptedPass << std::endl;
-        outfile.close();
         passFileLine++;
-    } while (getline(infilePass, lineFromPassFile));
-
+    }
     infilePass.close();
+    std::ofstream outfile(passwordFile, std::ios::app);
+    outfile << "Service: " << serviceName << std::endl;
+    outfile << "Password: " << encryptedPass << std::endl;
+    outfile.close();
 
     // Write the key into a text file.
     // Move this to encryptPass() when I make it.
+    // Add editing existing entries like with passwords.
     std::ofstream keyfile(keyFile, std::ios::app);
 
     if (keyfile.is_open()) {
         std::string keyStr;
-        for (int i = 0; i < lengthOfPassword; i++) 
+        for (int i = 0; i < lengthOfPassword; i++)
             keyStr.push_back(key[i]);
         keyfile << "Service: " << serviceName << std::endl;
         keyfile << "Key: " << keyStr << std::endl;
@@ -173,4 +177,5 @@ void Password::save()
     else {
         std::cout << "Couldn't open key file.\n";
     }
+    keyfile.close();
 }
