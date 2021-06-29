@@ -32,11 +32,8 @@ private:
 
 /*
     To do:
-    - Update save() -method to first check if an entry for a service already exists.
-        - Update output to output to given line if an entry for the service name exists.
-        - Do the same for the key written in milkshake.txt.
-    - Make encryption it's own method.
     - Create constructor that finds a password for a service.
       |-> Search used in save() should do the trick.
     - Find a way to encrypt password. Make myself or use existing library?
+        - Make encryption it's own method.
 */

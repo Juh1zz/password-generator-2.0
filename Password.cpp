@@ -140,17 +140,24 @@ void Password::save()
         int found = lineFromPassFile.find(serviceLowerCase);
         // If an entry for the service was found, write new password to it.
         if (found != std::string::npos) {
-            // Write password to existing entry.
-            std::fstream filestream(passwordFile);
-            std::string line;
-            int iterator = 1;
-            while (getline(filestream, line)) {
-                if (iterator == passFileLine) {
-                    // Copy passfile to memory and change password entry for serviceName to new password.
-                }
-                iterator++;
+            // Copy password file to vector and write password to existing entry.
+            std::vector<std::string> passVect;
+            std::string passLine;
+            std::ifstream passFile;
+            passFile.open(passwordFile);
+            while (getline(passFile, passLine)) {
+                passVect.push_back(passLine);
             }
-            filestream.close();
+            passVect[passFileLine] = "Password: " + password;
+            passFile.close();
+            
+            // Rewrite passwordFile with new password.
+            std::ofstream passFileOut;
+            passFileOut.open(passwordFile, std::ofstream::trunc);
+            for (std::string line : passVect) {
+                passFileOut << line << std::endl;
+            }
+            passFileOut.close();
             infilePass.close();
             return;
         }
