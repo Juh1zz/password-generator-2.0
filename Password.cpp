@@ -4,12 +4,56 @@
 #include <fstream>
 #include <random>
 #include <vector>
-/*
-Password::Password(const std::string service)
+
+Password::Password()
+{
+}
+
+Password::Password(const std::string &service)
 {	
     // Retrieve password from passwordFile.
+    std::ifstream passFile;
+    try {
+        passFile.open(passwordFile);
+        if (!passFile.is_open())
+            throw 404;
+    }
+    catch (int errNo) {
+        passFile.clear();
+        std::cerr << "Error " << errNo << ": Could not find or open file.\n";
+        std::cout << "Creating new files.\n";
+        createFiles();
+    }
+
+    // Make password lower case for case insensitive search.
+    std::string lowerCaseService;
+    for (char c : service) {
+        lowerCaseService.push_back(tolower(c));
+    }
+
+    // Search for entries for nameOfService.
+    std::string passLine;
+    while (getline(passFile, passLine)) {
+        // Convert passLine to lower case to make search case insensitive.
+        int sizeOfPassLine = passLine.size();
+        for (int i = 0; i < sizeOfPassLine; i++) {
+            passLine[i] = tolower(passLine[i]);
+        }
+        std::string serviceFromLine = passLine.substr(8, 9);
+        int found = passLine.find(lowerCaseService);
+        // If an entry for the service was found, get the password for it.
+        if (found != std::string::npos) {
+            // Retrieve password for found service.
+            getline(passFile, password);
+            // Extract password from line.
+            password = password.substr(10, 11);
+            std::cout << "Password from line: " << password << std::endl;
+            break;
+        }
+    }
+    passFile.close();
 }
-*/
+
 std::string Password::getName() const
 {
     return serviceName;
@@ -111,7 +155,7 @@ void Password::save()
     try {
         infilePass.open(passwordFile);
         if (infilePass.fail())
-            throw 101;
+            throw 404;
     }
     catch (int errNo) {
         infilePass.clear();
@@ -122,11 +166,11 @@ void Password::save()
 
     // Make name of service lower case.
     std::string serviceLowerCase;
-    int sizeOfServiceName = serviceName.size();
-    for (int i = 0; i < sizeOfServiceName; i++) {
-        serviceLowerCase.push_back(tolower(serviceName[i]));
+    for (char c : serviceName) {
+        serviceLowerCase.push_back(tolower(c));
     }
-    // Search for entries for nameOfSerice.
+
+    // Search for entries for nameOfService.
     std::string lineFromPassFile;
     int passFileLine = 1;
 

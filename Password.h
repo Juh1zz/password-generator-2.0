@@ -5,7 +5,9 @@
 class Password
 {
 public:
-    //Password(const std::string service);
+    // Retrieve password from passwordFile.
+    Password();
+    Password(const std::string &service);
 
     std::string getName() const;
     std::string getPassword() const;
@@ -29,6 +31,9 @@ private:
     // Move generating and writing key into key file here.
     //void encryptPass();
 };
+
+// ERROR: With parametric constructor first password in file always
+// gets regenerated.
 
 /*
     To do:

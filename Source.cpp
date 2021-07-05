@@ -6,8 +6,11 @@ int main() {
     // Main function for Password generator 2.0
 
     // Placeholder function for testing purposes.
-    Password pass;
-    pass.create(10);
+    std::string service;
+    std::cout << "Enter name of service: ";
+    std::cin >> service;
+    Password pass(service);
+    //pass.create(10);
     pass.print();
     pass.save();
 
