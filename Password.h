@@ -32,9 +32,6 @@ private:
     //void encryptPass();
 };
 
-// ERROR: With parametric constructor first password in file always
-// gets regenerated.
-
 /*
     To do:
     - Create constructor that finds a password for a service.
