@@ -230,3 +230,8 @@ void Password::save()
     }
     keyfile.close();
 }
+
+void Password::setPassword(const std::string& pass){
+    // Let the user set a password manually.
+    // Either to a new entry or edit an existing one.
+}
