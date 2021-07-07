@@ -15,6 +15,8 @@ public:
     void create(const int& length);    
     void print() const;
     void save();
+    // Let the user set a password.
+    void setPassword(const std::string& pass);
     
 private:
     std::string serviceName;
