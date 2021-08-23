@@ -5,12 +5,9 @@
 #include <random>
 #include <vector>
 
-Password::Password()
-{
-}
-
 Password::Password(const std::string &service)
 {	
+    serviceName = service;
     // Retrieve password from passwordFile.
     std::ifstream passFile;
     try {
@@ -25,7 +22,7 @@ Password::Password(const std::string &service)
         createFiles();
     }
 
-    // Make password lower case for case insensitive search.
+    // Make service lower case for case insensitive search.
     std::string lowerCaseService;
     for (char c : service) {
         lowerCaseService.push_back(tolower(c));
@@ -47,7 +44,6 @@ Password::Password(const std::string &service)
             getline(passFile, password);
             // Extract password from line.
             password = password.substr(10, 11);
-            std::cout << "Password from line: " << password << std::endl;
             break;
         }
     }
@@ -71,21 +67,6 @@ int Password::getLength() const
 
 void Password::create(const int& length)
 {
-    // Ask user what service the password is for.
-    retryName:
-    try {
-        std::cout << "Service name: ";
-        std::cin >> serviceName;
-        if (std::cin.fail())
-            throw;
-    }
-    catch (...) {
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cout << "Input invalid. Please try again.\n";
-        goto retryName;
-    }
-
     // Initialize RNG.
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -143,7 +124,7 @@ void Password::save()
 {
     // Encrypt password and name of service.
     generateKey();
-    std::string encryptedPass;
+    std::string encryptedPass = password;
     int lengthOfPassword = password.size();
     for (int i = 0; i < lengthOfPassword; i++) {
         encryptedPass.push_back(password[i] += key[i]);
@@ -161,6 +142,7 @@ void Password::save()
         infilePass.clear();
         std::cerr << "Error " << errNo << ": File(s) was not found or doesn't exist.\n";
         createFiles();
+        std::cout << "Files have been created.\n";
         goto tryAgain;
     }
 
@@ -231,7 +213,6 @@ void Password::save()
     keyfile.close();
 }
 
-void Password::setPassword(const std::string& pass){
-    // Let the user set a password manually.
-    // Either to a new entry or edit an existing one.
+void Password::setPassword(const std::string& pass) {
+    password = pass;
 }

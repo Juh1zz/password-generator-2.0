@@ -1,20 +1,62 @@
 #include <iostream>
+#include <limits>
 #include "Password.h"
-
+#include "menu_options.h"
 
 int main() {
     // Main function for Password generator 2.0
 
-    // Placeholder function for testing purposes.
-    std::string service;
-    std::cout << "Enter name of service: ";
-    std::cin >> service;
-    Password pass(service);
-    //pass.create(10);
-    pass.print();
-    pass.save();
+    std::cout << "Welcome to Password generator 2.0.\n";
+    std::cout << "This is a tool to create and store your passwords.\n";
 
-    return 0;
+    while(true) {
+        int function = 0;
+        askAgain:
+        try {
+            std::cout << "Choose function (1. create password, 2. read password, 3. change password, 4. Save existing password, 5. Exit): ";
+            std::cin >> function;
+            if (std::cin.fail())
+                throw 10;
+            if (function <= 0 || function >= 6)
+                throw 20;
+        }
+        catch (int errNo) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            switch (errNo) {
+            case 10:
+                std::cerr << "Input failed. Please try again.\n";
+                break;
+            case 20:
+                std::cout << "Invalid selection. Please try again.\n";
+            }
+            goto askAgain;
+        }
+
+        bool randomGen;
+        switch (function) {
+            // Case 1: Create a new password.
+        case 1:
+            createPassword();
+            break;
+            // Case 2: Read a password from file.
+        case 2:
+            readPassword();
+            break;
+            // Case 3: Change password to a random one.
+        case 3:
+            randomGen = true;
+            changePassword(randomGen);
+            break;
+            // Case 4: Change password to a user input one.
+        case 4:
+            randomGen = false;
+            changePassword(randomGen);
+            break;
+        case 5:
+            return 0;
+        }
+    }
 }
 
 

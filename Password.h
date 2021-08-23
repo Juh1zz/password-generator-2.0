@@ -6,7 +6,6 @@ class Password
 {
 public:
     // Retrieve password from passwordFile.
-    Password();
     Password(const std::string &service);
 
     std::string getName() const;
@@ -36,8 +35,10 @@ private:
 
 /*
     To do:
-    - Create constructor that finds a password for a service.
-      |-> Search used in save() should do the trick.
+    - Add a method to manually input new password for service.
     - Find a way to encrypt password. Make myself or use existing library?
         - Make encryption it's own method.
 */
+
+// Removed asking for service name from method create().
+// Must be done by file calling method.
